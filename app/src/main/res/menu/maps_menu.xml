@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/app"
+    android:title="Travel Modes">
+
+
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/walk_settings"
+        tools:context=".activity.MapsActivity"
+        app:showAsAction="never"
+        android:title="@string/walking_settings">
+    </item>
+
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/bus_settings"
+        tools:context=".activity.MapsActivity"
+        app:showAsAction="never"
+        android:title="@string/bus_settings">
+    </item>
+
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/car_settings"
+        tools:context=".activity.MapsActivity"
+        app:showAsAction="never"
+        android:title="@string/car_settings">
+    </item>
+
+</menu>

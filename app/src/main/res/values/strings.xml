@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MobileLoc</string>
+    <string name="title_activity_maps">Route Lookup</string>
+    <string name="car_settings">Car</string>
+    <string name="bus_settings">Bus</string>
+    <string name="walking_settings">Walk</string>
+    <string name="origin">Enter a Starting Address</string>
+    <string name="destination">Enter a Destination Address</string>
+    <string name="findpath">Get Directions</string>
+</resources>
