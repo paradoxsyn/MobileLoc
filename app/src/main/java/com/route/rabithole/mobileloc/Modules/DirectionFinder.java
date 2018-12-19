@@ -29,6 +29,10 @@ public class DirectionFinder {
     private LatLng originLL, destinationLL;
     private double orilat,orilong,destlat,destlong;
 
+    public DirectionFinder(){
+
+    }
+
     public DirectionFinder(DirectionFinderListener listener, String origin, String destination) {
         this.listener = listener;
         this.origin = origin;
@@ -87,7 +91,7 @@ public class DirectionFinder {
 
     private class DownloadRawData extends AsyncTask<String, Void, String> {
 
-        //Open the downloaded data in a seperate thread and iterate through it
+        //Open the downloaded data in a separate thread and iterate through it
 
         @Override
         protected String doInBackground(String... params) {
@@ -145,6 +149,7 @@ public class DirectionFinder {
             JSONArray jsonAgency = jsonLine.getJSONArray("agencies");
             JSONObject jsonEndLocation = jsonLeg.getJSONObject("end_location");
             JSONObject jsonStartLocation = jsonLeg.getJSONObject("start_location");
+
 
             route.endAddress = jsonLeg.getString("end_address");
             route.startAddress = jsonLeg.getString("start_address");
