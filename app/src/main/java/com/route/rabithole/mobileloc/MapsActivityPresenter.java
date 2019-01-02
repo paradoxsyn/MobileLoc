@@ -225,6 +225,7 @@ public class MapsActivityPresenter {
 
                 Log.d("Maps", "Place selected: " + place.getAddress().toString());
                 addMarker(place);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 16));
                 destination = place.getAddress().toString();
                 destinationLL = place.getLatLng();
             }
@@ -284,6 +285,7 @@ public class MapsActivityPresenter {
         t.makeText(context,"Please enter" + which + "!", Toast.LENGTH_SHORT).show();
 
     }
+
 
     public interface View{
         void showProgressDialog(String message);

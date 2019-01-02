@@ -24,7 +24,7 @@ import java.util.List;
 public class BusFinder {
 
     private BusFinderListener listener;
-    private String url;
+    private String origin,destination;
     private GtfsRealtime.FeedMessage feed;
     private List<LatLng> latlngList;
     private LatLng originLL, destinationLL;
@@ -35,6 +35,15 @@ public class BusFinder {
 
     public BusFinder(){
 
+    }
+
+    public BusFinder(BusFinderListener listener, String origin, String destination) {
+        this.listener = listener;
+        this.origin = origin;
+        this.destination = destination;
+        latlngList = new ArrayList<>();
+        haversine = new Haversine();
+        closest = new ArrayList<>();
     }
 
     public BusFinder(BusFinderListener listener, LatLng originLL, LatLng destinationLL) {

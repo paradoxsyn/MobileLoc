@@ -12,7 +12,9 @@ import android.util.Log;
 import com.google.android.gms.common.api.GoogleApi;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -27,8 +29,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.route.rabithole.mobileloc.R;
+
+import java.util.List;
 
 public class Map implements OnMapReadyCallback {
 
@@ -47,6 +52,9 @@ public class Map implements OnMapReadyCallback {
     protected PlaceDetectionClient mPlaceDetectionClient;
     protected FusedLocationProviderClient mFusedLocationProviderClient;
     protected  Activity activity;
+
+    private LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
 
     public Map(MapListener listener){
         this.listener = listener;
@@ -96,14 +104,19 @@ public class Map implements OnMapReadyCallback {
         }
     }
 
-    protected void createLocationRequest() {
-        LocationRequest mLocationRequest = LocationRequest.create();
+    public void createLocationRequest() {
+        mLocationRequest = LocationRequest.create();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
+
+    }
+
+    private LocationRequest getLocationRequest(){
+        return mLocationRequest;
     }
     public void setLocationPermission(boolean check){
         mLocationPermissionGranted = check;
@@ -111,6 +124,10 @@ public class Map implements OnMapReadyCallback {
 
     public boolean getLocationCheck(){
         return mLocationPermissionGranted;
+    }
+
+    public Location getLastKnownLocation(){
+        return mLastKnownLocation;
     }
 
     public int getPermissionsRequestAccessFineLocation(){
@@ -137,27 +154,29 @@ public class Map implements OnMapReadyCallback {
     }
 
     public void getCurrentPlace(){
-        Task<PlaceLikelihoodBufferResponse> placeResult = mPlaceDetectionClient.getCurrentPlace(null);
-        placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
-                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
-                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                    Log.i("", String.format("Place '%s' has likelihood: %g",
-                            placeLikelihood.getPlace().getName(),
-                            placeLikelihood.getLikelihood()));
-                    //System.out.println(likelyPlaces);
+        try {
+            Task<PlaceLikelihoodBufferResponse> placeResult = mPlaceDetectionClient.getCurrentPlace(null);
+            placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
+                @Override
+                public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
+                    PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
+                    for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                        Log.i("", String.format("Place '%s' has likelihood: %g",
+                                placeLikelihood.getPlace().getName(),
+                                placeLikelihood.getLikelihood()));
+                        //System.out.println(likelyPlaces);
 
+                    }
+                    listener.onPlaceComplete(likelyPlaces.get(0).getPlace().freeze());
+                    //thePlace = likelyPlaces.get(0).getPlace();
+                    likelyPlaces.release();
                 }
-                listener.onPlaceComplete(likelyPlaces.get(0).getPlace().freeze());
-                //thePlace = likelyPlaces.get(0).getPlace();
-                likelyPlaces.release();
-            }
-        });
-    }
-
-    public Place getThePlace(){
-        return thePlace;
+            });
+        }catch(NullPointerException e){
+            e.getStackTrace();
+        }catch(SecurityException e){
+            e.getMessage();
+        }
     }
 
     private void getDeviceLocation(){
@@ -188,6 +207,7 @@ public class Map implements OnMapReadyCallback {
                             mMap.moveCamera(CameraUpdateFactory
                                     .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                            mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,mLocationCallback,null);
                         }
                     }
                 });
@@ -195,6 +215,19 @@ public class Map implements OnMapReadyCallback {
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                List<Location> locationList = locationResult.getLocations();
+                if (locationList.size() > 0) {
+                    //The last location in the list is the newest
+                    Location location = locationList.get(locationList.size() - 1);
+                    Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
+                    mLastKnownLocation = location;
+                }
+            }
+        };
     }
 
     /**
@@ -216,10 +249,10 @@ public class Map implements OnMapReadyCallback {
         updateLocationUI();
 
         System.out.println("Perm Loc" + mLocationPermissionGranted);
-
+        createLocationRequest();
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
-
         getCurrentPlace();
+
     }
 }

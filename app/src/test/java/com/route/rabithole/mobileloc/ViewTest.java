@@ -1,13 +1,9 @@
 package com.route.rabithole.mobileloc;
 
-import android.widget.Button;
-import android.widget.ImageButton;
 
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.route.rabithole.mobileloc.Modules.Map;
-import com.route.rabithole.mobileloc.Modules.MapListener;
+import android.view.KeyEvent;
+
+import android.widget.ImageButton;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,10 +12,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+
 import org.robolectric.shadows.ShadowApplication;
 
-import static org.mockito.Mockito.verify;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -29,6 +28,8 @@ public class ViewTest {
 
     @Mock
     private MapsActivityPresenter presenter;
+
+    @Mock
     private MapsActivity activity;
 
 
@@ -37,14 +38,41 @@ public class ViewTest {
         MockitoAnnotations.initMocks(this);
         activity = new MapsActivity();
         presenter = new MapsActivityPresenter(activity);
+        activity = Robolectric.buildActivity(MapsActivity.class).create().visible().get();
     }
 
     @Test
     public void testLocationButtonPress(){
-        activity = Robolectric.buildActivity(MapsActivity.class).create().get();
+
         ImageButton location = (ImageButton) activity.findViewById(R.id.my_location);
         location.performClick();
 
         ShadowApplication.runBackgroundTasks();
+    }
+
+    @Test
+    public void testProgressDialog(){
+        MapsActivity m = mock(MapsActivity.class);
+        m.showProgressDialog("test");
+        m.hideProgressDialog();
+    }
+
+    @Test
+    public void testOptionsMenu() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+                getInstrumentation().invokeMenuActionSync(activity, R.id.walk_settings, 0);
+                assertEquals(true, getInstrumentation().invokeContextMenuAction(activity, R.id.walk_settings,0));
+            }
+        });
+
+
+    }
+
+    @Test
+    public void testSendRequest() {
+        //Try to make encapsulated as possible, sendRequest is private
     }
 }

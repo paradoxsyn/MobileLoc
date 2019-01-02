@@ -40,7 +40,6 @@ import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements DirectionFinderListener, BusFinderListener, MapListener, MapsActivityPresenter.View {
 
-
     private Button btnFindPath;
     private ImageButton btnFindLocation;
     private ProgressDialog progressDialog;
@@ -135,7 +134,6 @@ public class MapsActivity extends AppCompatActivity implements DirectionFinderLi
         return true;
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         map.setLocationPermission(false);
@@ -147,6 +145,8 @@ public class MapsActivity extends AppCompatActivity implements DirectionFinderLi
                 }
             }
         map.updateLocationUI();
+        map.createLocationRequest();
+        map.getCurrentPlace();
     }
 
 
@@ -191,6 +191,7 @@ public class MapsActivity extends AppCompatActivity implements DirectionFinderLi
         btnFindLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                map.getCurrentPlace();
                 view.addMarker(place);
                 placeAutoOrigin.setText(place.getAddress().toString());
             }
