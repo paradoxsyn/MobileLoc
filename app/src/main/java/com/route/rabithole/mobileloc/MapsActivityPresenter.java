@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -56,6 +57,8 @@ public class MapsActivityPresenter {
     private List<LatLng> busRoutes;
     private List<LatLng> bestRoutes;
 
+    private Handler timer;
+
     public MapsActivityPresenter(View view){
         this.view = view;
 
@@ -81,6 +84,7 @@ public class MapsActivityPresenter {
         if(isT) {
             try {
                 new DirectionFinder(listener, originLL, destinationLL).executeT();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

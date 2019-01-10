@@ -106,15 +106,21 @@ public class BusFinder {
         @Override
         protected void onPostExecute(String result){
             closestEnt = feed.getEntity(0);
-            double closest = compareRoutes(originLL.latitude,originLL.longitude,closestEnt.getVehicle().getPosition().getLatitude(),closestEnt.getVehicle().getPosition().getLongitude());
-            double tmp;
+            //Either compare the origin or the destination
+            double closest = compareRoutes(destinationLL.latitude,destinationLL.longitude,closestEnt.getVehicle().getPosition().getLatitude(),closestEnt.getVehicle().getPosition().getLongitude());
+            double closestO = compareRoutes(originLL.latitude,originLL.longitude,closestEnt.getVehicle().getPosition().getLatitude(),closestEnt.getVehicle().getPosition().getLongitude());
+            double tmp, tmpO;
             for(GtfsRealtime.FeedEntity entity :feed.getEntityList())
             {
                 //closest.add(entity.getVehicle().getPosition())
-                tmp = compareRoutes(originLL.latitude,originLL.longitude,entity.getVehicle().getPosition().getLatitude(),entity.getVehicle().getPosition().getLongitude());
+                tmp = compareRoutes(destinationLL.latitude,destinationLL.longitude,entity.getVehicle().getPosition().getLatitude(),entity.getVehicle().getPosition().getLongitude());
+                //tmpO = compareRoutes(originLL.latitude,originLL.longitude,entity.getVehicle().getPosition().getLatitude(),entity.getVehicle().getPosition().getLongitude());
                 if(tmp < closest){
-                    closest = tmp;
-                    closestEnt = entity;
+                    //if(tmpO < closestO) {
+                        closest = tmp;
+                        //closestO = tmpO;
+                        closestEnt = entity;
+                    //}
                 }
             }
             listener.onBusFinderFeedResponse(closestEnt);
